@@ -1,6 +1,7 @@
 package edu.wisc.ischool.wiscir.examples;
 
 import org.apache.commons.compress.utils.IOUtils;
+
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.LowerCaseFilter;
 import org.apache.lucene.analysis.StopFilter;
@@ -18,6 +19,9 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.search.similarities.ClassicSimilarity;
+import org.apache.lucene.search.similarities.LMDirichletSimilarity;
+import org.apache.lucene.search.similarities.AxiomaticF2EXP;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -38,8 +42,8 @@ public class LuceneBuildIndex {
         try {
 
             // change the following input and output paths to your local ones
-            String pathCorpus = "/home/jiepu/Downloads/example_corpus.gz";
-            String pathIndex = "/home/jiepu/Downloads/example_index_lucene";
+            String pathCorpus = "/Users/ozanbicer/Desktop/example_corpus.gz";
+            String pathIndex = "/Users/ozanbicer/Desktopexample_index_lucene";
 
             Directory dir = FSDirectory.open( new File( pathIndex ).toPath() );
 
@@ -53,7 +57,7 @@ public class LuceneBuildIndex {
                     ts = new TokenStreamComponents( ts.getSource(), new LowerCaseFilter( ts.getTokenStream() ) );
                     // Step 3: whether to remove stop words (unnecessary to remove stop words unless you can't afford the extra disk space)
                     // Uncomment the following line to remove stop words
-                    // ts = new TokenStreamComponents( ts.getSource(), new StopFilter( ts.getTokenStream(), EnglishAnalyzer.ENGLISH_STOP_WORDS_SET ) );
+                    ts = new TokenStreamComponents( ts.getSource(), new StopFilter( ts.getTokenStream(), EnglishAnalyzer.ENGLISH_STOP_WORDS_SET ) );
                     // Step 4: whether to apply stemming
                     // Uncomment one of the following two lines to apply Krovetz or Porter stemmer (Krovetz is more common for IR research)
                     ts = new TokenStreamComponents( ts.getSource(), new KStemFilter( ts.getTokenStream() ) );
@@ -67,7 +71,9 @@ public class LuceneBuildIndex {
             config.setOpenMode( IndexWriterConfig.OpenMode.CREATE );
             // Lucene's default BM25Similarity stores document field length using a "low-precision" method.
             // Use the BM25SimilarityOriginal to store the original document length values in index.
-            config.setSimilarity( new BM25SimilarityOriginal() );
+            config.setSimilarity( new ClassicSimilarity() );       // SORGU 1
+            //config.setSimilarity( new LMDirichletSimilarity() );   // SORGU 2 
+            //config.setSimilarity( new AxiomaticF2EXP() );          // SORGU 3
 
             IndexWriter ixwriter = new IndexWriter( dir, config );
 

@@ -17,6 +17,9 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.similarities.BM25Similarity;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.search.similarities.ClassicSimilarity;
+import org.apache.lucene.search.similarities.LMDirichletSimilarity;
+import org.apache.lucene.search.similarities.AxiomaticF2EXP;
 
 import java.io.File;
 
@@ -31,7 +34,7 @@ public class LuceneSearchExample {
     public static void main( String[] args ) {
         try {
 
-            String pathIndex = "/home/jiepu/Downloads/example_index_lucene";
+            String pathIndex = "/Users/ozanbicer/Desktop/example_index_lucene";
 
             // Analyzer specifies options for text tokenization and normalization (e.g., stemming, stop words removal, case-folding)
             Analyzer analyzer = new Analyzer() {
@@ -43,7 +46,7 @@ public class LuceneSearchExample {
                     ts = new TokenStreamComponents( ts.getSource(), new LowerCaseFilter( ts.getTokenStream() ) );
                     // Step 3: whether to remove stop words (unnecessary to remove stop words unless you can't afford the extra disk space)
                     // Uncomment the following line to remove stop words
-                    // ts = new TokenStreamComponents( ts.getSource(), new StopFilter( ts.getTokenStream(), EnglishAnalyzer.ENGLISH_STOP_WORDS_SET ) );
+                    ts = new TokenStreamComponents( ts.getSource(), new StopFilter( ts.getTokenStream(), EnglishAnalyzer.ENGLISH_STOP_WORDS_SET ) );
                     // Step 4: whether to apply stemming
                     // Uncomment one of the following two lines to apply Krovetz or Porter stemmer (Krovetz is more common for IR research)
                     ts = new TokenStreamComponents( ts.getSource(), new KStemFilter( ts.getTokenStream() ) );
@@ -66,7 +69,9 @@ public class LuceneSearchExample {
             IndexSearcher searcher = new IndexSearcher( index );
 
             // make sure the similarity class you are using is consistent with those being used for indexing
-            searcher.setSimilarity( new BM25SimilarityOriginal() );
+            searcher.setSimilarity( new ClassicSimilarity() );        // SORGU 1 
+            //searcher.setSimilarity( new LMDirichletSimilarity() );  // SORGU 2
+            //searcher.setSimilarity( new AxiomaticF2EXP() );         // SORGU 3
 
             int top = 10; // Let's just retrieve the talk 10 results
             TopDocs docs = searcher.search( query, top ); // retrieve the top 10 results; retrieved results are stored in TopDocs
